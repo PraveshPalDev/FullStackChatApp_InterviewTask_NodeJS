@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.background,
     },
     headerTitle: {
-        fontSize: 28,
+        fontSize: 14,
         fontWeight: 'bold',
         color: theme.colors.text,
     },
@@ -124,6 +124,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#EEEEEE',
         marginLeft: 90,
     },
+    headerFullName: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#000',
+        marginLeft: 10
+    }
 });
 
 export default styles;

@@ -56,14 +56,24 @@ export default function Chats({ route, navigation }) {
     fetchMessages();
   }, []);
 
+  // Auto-scroll to bottom when messages are loaded
+  useEffect(() => {
+    if (!loading && messages.length > 0) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: false });
+      }, 100);
+    }
+  }, [loading, messages.length]);
+
   // Socket listeners setup
   useEffect(() => {
     if (!socket || !currentUser) return;
 
     // Listen for incoming messages
     const handleReceiveMessage = (msg) => {
-      // Only add message if it's from/to this conversation
-      if (msg.fromUserId === userId || msg.toUserId === userId) {
+      // Only add message if it's from the OTHER user in this conversation
+      // (Don't add our own messages here since we already added them optimistically)
+      if (msg.fromUserId === userId && msg.toUserId === currentUser.id) {
         setMessages(prev => [...prev, {
           id: msg.id,
           text: msg.text,
@@ -77,10 +87,16 @@ export default function Chats({ route, navigation }) {
           flatListRef.current?.scrollToEnd({ animated: true });
         }, 100);
 
-        // Mark as read if we're currently viewing
-        if (msg.fromUserId === userId) {
-          socket.emit('mark_messages_read', { otherUserId: userId });
-        }
+        // Mark as read since we're currently viewing
+        socket.emit('mark_messages_read', { otherUserId: userId });
+      } else if (msg.fromUserId === currentUser.id && msg.toUserId === userId) {
+        // This is our own message coming back from the server
+        // Update the optimistic message with the real one from server
+        setMessages(prev => prev.map(m =>
+          m.isPending && m.text === msg.text
+            ? { ...msg, user: msg.user, isRead: false, isPending: false }
+            : m
+        ));
       }
     };
 

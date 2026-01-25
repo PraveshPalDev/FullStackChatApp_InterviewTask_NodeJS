@@ -21,6 +21,7 @@ export default function Home({ navigation }) {
   const [unreadCounts, setUnreadCounts] = useState({});
   const [loading, setLoading] = useState(false);
   const [socket, setSocket] = useState(getSocket());
+  const loginData = getUser();
 
   useEffect(() => {
     fetchUserList();
@@ -127,12 +128,18 @@ export default function Home({ navigation }) {
     }
   };
 
-  // Merge contacts with online status
+  // Merge contacts with online status and sort online users to the top
   const userList = useMemo(() => {
-    return contacts.map(user => ({
+    const usersWithStatus = contacts.map(user => ({
       ...user,
       isOnline: onlineUserIds.has(user.id)
     }));
+
+    // Sort: online users first, then offline users
+    return usersWithStatus.sort((a, b) => {
+      if (a.isOnline === b.isOnline) return 0;
+      return a.isOnline ? -1 : 1;
+    });
   }, [contacts, onlineUserIds]);
 
   const renderItem = useCallback(({ item }) => {
@@ -218,10 +225,12 @@ export default function Home({ navigation }) {
     <View style={styles.safeArea}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Chats</Text>
+        <Text style={styles.headerFullName}>{loginData?.name}</Text>
         <TouchableOpacity
           onPress={logoutHandler}
           style={styles.headerAction}
         >
+
           <Text style={styles.headerActionText}>⏻</Text>
         </TouchableOpacity>
       </View>
