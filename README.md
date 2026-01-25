@@ -224,7 +224,7 @@ MIT
 
 ## 👨‍💻 Developer
 
-Created by AI Assistant
+Created by Pravesh Kumar
 Last Updated: 2026-01-25
 
 ---
