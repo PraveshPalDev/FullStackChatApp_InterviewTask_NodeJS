@@ -193,9 +193,8 @@ io.on('connection', (socket) => {
                         toUserId: data.toUserId
                     });
 
-                    // Send updated unread count to recipient (only count messages from current sender)
+                    // Send updated unread count to recipient
                     const unreadCount = await Message.countDocuments({
-                        sender: currentUserId,
                         recipient: data.toUserId,
                         isRead: false,
                         isPrivate: true
@@ -256,12 +255,6 @@ io.on('connection', (socket) => {
                     readByUserId: currentUserId
                 });
             }
-
-            // Send updated unread count back to the current user (should be 0 now)
-            socket.emit('unread_count_update', {
-                fromUserId: otherUserId,
-                count: 0
-            });
         } catch (err) {
             console.error("Error marking messages as read:", err);
         }
